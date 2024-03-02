@@ -1,14 +1,22 @@
+import os
+import ast
+from dotenv import load_dotenv
 import praw
 
+# Load environment variables from .env file
+# Will not overwrite existing environment variables
+load_dotenv()
+
 # Reddit API credentials
-client_id = 'YOUR_CLIENT_ID'
-client_secret = 'YOUR_CLIENT_SECRET'
-user_agent = 'bot by /u/YOUR_USERNAME'
-username = 'YOUR_USERNAME'
-password = 'YOUR_PASSWORD'
+client_id = os.environ["CLIENT_ID"]
+client_secret = os.environ["CLIENT_SECRET"]
+user_agent = 'Reddit Sticky Bot'
+username = os.environ["USERNAME"]
+password = os.environ["PASSWORD"]
 
 # Whitelisted users
-whitelisted_users = ['User1', 'User2', 'DeveloperUsername', 'CommunityManager']
+whitelisted_users = ast.literal_eval(os.environ["WHITELIST"])
+whitelisted_users_lower = [name.lower() for name in whitelisted_users]
 
 # Initialize PRAW with your credentials
 reddit = praw.Reddit(client_id=client_id,
@@ -18,7 +26,7 @@ reddit = praw.Reddit(client_id=client_id,
                      password=password)
 
 # Subreddit to monitor
-subreddit_name = 'YOUR_SUBREDDIT'
+subreddit_name = os.environ["SUBREDDIT"]
 
 # The text for the sticky comment
 sticky_comment_text = """
@@ -27,9 +35,10 @@ This post is from an approved developer. Here's some more information:
 """
 
 def sticky_comment_on_whitelisted_user_post():
+    print(f"Bot started and listening in r/{subreddit_name}")
     subreddit = reddit.subreddit(subreddit_name)
     for submission in subreddit.stream.submissions():
-        if submission.author and submission.author.name in whitelisted_users:
+        if submission.author and (submission.author.name.lower() in whitelisted_users_lower):
             print(f"Found a post by whitelisted user: {submission.author.name}")
             # Post the comment
             comment = submission.reply(sticky_comment_text)
