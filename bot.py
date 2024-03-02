@@ -37,7 +37,7 @@ This post is from an approved developer. Here's some more information:
 def sticky_comment_on_whitelisted_user_post():
     print(f"Bot started and listening in r/{subreddit_name}")
     subreddit = reddit.subreddit(subreddit_name)
-    for submission in subreddit.stream.submissions():
+    for submission in subreddit.stream.submissions(skip_existing=True):
         if submission.author and (submission.author.name.lower() in whitelisted_users_lower):
             print(f"Found a post by whitelisted user: {submission.author.name}")
             # Post the comment
