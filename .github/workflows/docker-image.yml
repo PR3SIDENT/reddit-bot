@@ -38,6 +38,10 @@ jobs:
         PASSWORD: ${{ secrets.PASSWORD }}
         WHITELIST: ${{ secrets.WHITELIST }}
         SUBREDDIT: ${{ secrets.SUBREDDIT }}
+      with:
+        from_file: '.env'
+        to_file: '.env'
+        commit: 'false'
     - name: Docker Metadata action
       id: meta
       uses: docker/metadata-action@v5.5.1
