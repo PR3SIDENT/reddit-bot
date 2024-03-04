@@ -29,19 +29,6 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: replace_envs
-      uses: franzbischoff/replace_envs@v2
-      env:
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.API_KEY }}
-        USERNAME: ${{ secrets.USERNAME }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        WHITELIST: ${{ secrets.WHITELIST }}
-        SUBREDDIT: ${{ secrets.SUBREDDIT }}
-      with:
-        from_file: '.env'
-        to_file: '.env'
-        commit: 'false'
     - name: Docker Metadata action
       id: meta
       uses: docker/metadata-action@v5.5.1

@@ -25,6 +25,8 @@ reddit = praw.Reddit(client_id=client_id,
                      username=username,
                      password=password)
 
+reddit.validate_on_submit = True
+
 bot_user = reddit.user.me()
 
 # Subreddit to monitor
@@ -47,9 +49,9 @@ def sticky_comment_on_whitelisted_user_post():
             existing_sticky = None
             
             # Check if post already has developer comments bot sticky
-            for comment in submission.comments.list():
-                if (bot_user.id == comment.author.id) and ("This post has comments from approved developers." in comment.body):
-                    existing_sticky = comment
+            for submission_comment in submission.comments.list():
+                if (bot_user.id == submission_comment.author.id) and ("This post has comments from approved developers." in submission_comment.body):
+                    existing_sticky = submission_comment
                     print("Found bot post")
                     break
             
@@ -60,10 +62,10 @@ def sticky_comment_on_whitelisted_user_post():
                 comment_body_split = comment_body.split()
                 # Shorten comment to first 5 words if longer
                 if (len(comment_body_split) > 5):
-                    comment_body = "".join(comment_body_split[0:4]) + " ..."
+                    comment_body = " ".join(comment_body_split[:5]) + " ..."
                 sticky_comment_text_with_comment = f"{sticky_body}\n\n/u/{comment.author.name} posted a comment: [{comment_body}]({comment.permalink})"
                 # Edit sticky comment with new post
-                comment.edit(sticky_comment_text_with_comment)
+                existing_sticky.edit(sticky_comment_text_with_comment)
                 print(f"Edited a comment on post: {submission.title}")
                 
             # Else, create new comment and sticky
@@ -73,7 +75,7 @@ def sticky_comment_on_whitelisted_user_post():
                 comment_body_split = comment_body.split()
                 # Shorten comment to first 5 words if longer
                 if (len(comment_body_split) > 5):
-                    comment_body = "".join(comment_body_split[0:4]) + " ..."
+                    comment_body = "".join(comment_body_split[:5]) + " ..."
                 sticky_comment_text_with_comment = f"{sticky_comment_text}\n\n/u/{comment.author.name} posted a comment: [{comment_body}]({comment.permalink})"
                 # Post the comment
                 bot_sticky_comment = submission.reply(sticky_comment_text_with_comment)
