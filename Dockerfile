@@ -1,5 +1,6 @@
 FROM python:3.11.8-alpine
 
+VOLUME /app
 # Copy requirements and install into image
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
