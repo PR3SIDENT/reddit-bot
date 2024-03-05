@@ -39,7 +39,7 @@ stream = subreddit.stream.comments(skip_existing=True)
 
 # The text for the sticky comment
 sticky_comment_text = """
-This post has comments from approved developers. Their replies can be found here:
+This post contains replies from employees of Keen Games, you can see them here:
 
 """
 
