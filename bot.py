@@ -2,10 +2,12 @@ import os
 import ast
 from dotenv import load_dotenv
 import praw
+from sqlitedict import SqliteDict
 
 # Load environment variables from .env file
 # Will not overwrite existing environment variables
 load_dotenv()
+db = SqliteDict("reddit.sqlite", autocommit=True)
 
 # Reddit API credentials
 client_id = os.environ["CLIENT_ID"]
@@ -43,17 +45,16 @@ def sticky_comment_on_whitelisted_user_post():
     print(f"Whitelisted users: {whitelisted_users_lower}")
     subreddit = reddit.subreddit(subreddit_name)
     for comment in subreddit.stream.comments(skip_existing=True):
+        # Check if new comment is from a whitelisted username
         if comment.author and (comment.author.name.lower() in whitelisted_users_lower):
             print(f"Found a post by whitelisted user: {comment.author.name}")
             submission = comment.submission
             existing_sticky = None
             
             # Check if post already has developer comments bot sticky
-            for submission_comment in submission.comments.list():
-                if (bot_user.id == submission_comment.author.id) and ("This post has comments from approved developers." in submission_comment.body):
-                    existing_sticky = submission_comment
-                    print("Found bot post")
-                    break
+            if db[submission.id]:
+                existing_sticky = reddit.comment(db[submission.id])
+                print(f"Found bot post id: {existing_sticky.id}")
             
             if existing_sticky:
                 sticky_body = existing_sticky.body
@@ -79,9 +80,10 @@ def sticky_comment_on_whitelisted_user_post():
                 sticky_comment_text_with_comment = f"{sticky_comment_text}\n\n/u/{comment.author.name} posted a comment: [{comment_body}]({comment.permalink})"
                 # Post the comment
                 bot_sticky_comment = submission.reply(sticky_comment_text_with_comment)
+                db[submission.id] = bot_sticky_comment.id
                 # Sticky and distinguish the comment
                 bot_sticky_comment.mod.distinguish(how='yes', sticky=True)
-                print(f"Stickied a comment on post: {submission.title}")
+                print(f"Stickied a comment on post: {submission.title}\nPost id: {submission.id}\nComment id: {bot_sticky_comment.id}")
 
 # Run the bot
 sticky_comment_on_whitelisted_user_post()
