@@ -48,11 +48,13 @@ def send_to_discord(message):
     """
     Sends a message to the Discord webhook.
     """
-try:
-    response.raise_for_status()
-except Exception as error:
-    print(f"[{time.asctime()}] ERROR: {error}\n")
-
+    data = {"content": message}
+    response = requests.post(discord_webhook_url, json=data)
+    try:
+        response.raise_for_status()
+    except Exception as error:
+        print(f"[{time.asctime()}] ERROR: {error}\n")
+    
 def sticky_comment_on_whitelisted_user_post():
     print(f"Bot started and listening in r/{subreddit_name}")
     print(f"Whitelisted users: {whitelisted_users_lower}")
