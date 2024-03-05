@@ -36,7 +36,7 @@ subreddit_name = os.environ["SUBREDDIT"]
 
 # The text for the sticky comment
 sticky_comment_text = """
-This post has comments from approved developers. Their replies can be found here:
+This post contains replies from employees of Keen Games, you can see them here:
 
 """
 
