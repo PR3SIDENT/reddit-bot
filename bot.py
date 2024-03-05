@@ -23,7 +23,12 @@ whitelisted_users = ast.literal_eval(os.environ["WHITELIST"])
 whitelisted_users_lower = [name.lower() for name in whitelisted_users]
 
 # Discord Webhook URL
-discord_webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
+try:
+    discord_webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
+    print(f"Using webhook: {discord_webhook_url}")
+except:
+    discord_webhook_url = None
+    print(f"No webhook URL set.")
 
 # Initialize PRAW with your credentials
 reddit = praw.Reddit(client_id=client_id,
@@ -54,6 +59,8 @@ def send_to_discord(message):
     """
     Sends a message to the Discord webhook.
     """
+    if not discord_webhook_url:
+        return
     data = {"content": message}
     response = requests.post(discord_webhook_url, json=data)
     try:
@@ -87,7 +94,7 @@ def sticky_comment_on_whitelisted_user_post():
                 existing_sticky.edit(sticky_comment_text_with_comment)
                 print(f"Edited a comment on post: {submission.title}")
                 # Send notification to Discord
-                send_to_discord(f"A stickied reply has been updated in r/{subreddit_name} by {comment.author.name}. [Link to comment]({comment.permalink})")
+                send_to_discord(f"A stickied reply has been updated in r/{subreddit_name} by {comment.author.name}. [Link to comment](https://www.reddit.com{comment.permalink})")
                 
             # Else, create new comment and sticky
             else:
@@ -105,7 +112,7 @@ def sticky_comment_on_whitelisted_user_post():
                 bot_sticky_comment.mod.distinguish(how='yes', sticky=True)
                 print(f"Stickied a comment on post: {submission.title}\nPost id: {submission.id}\nComment id: {bot_sticky_comment.id}")
                 # Send notification to Discord
-                send_to_discord(f"A stickied reply has been posted in r/{subreddit_name} by {comment.author.name}. [Link to comment]({comment.permalink})")
+                send_to_discord(f"A stickied reply has been posted in r/{subreddit_name} by {comment.author.name}. [Link to comment](https://www.reddit.com{comment.permalink})")
 
 while True:
     try:
