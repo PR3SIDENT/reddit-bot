@@ -8,4 +8,4 @@
  - PASSWORD `# Bot's Reddit password`
  - WHITELIST `# List of Reddit usernames that will have their posts stickied. Format: ["Username1", "Username2"]`
  - SUBREDDIT `# Subreddit to watch for posts. Do not include the r/`
- - DISCORD_WEBHOOK_URL `# Discord logging Webhook URL`
+ - DISCORD_WEBHOOK_URL `# Optional: Discord logging Webhook URL`
