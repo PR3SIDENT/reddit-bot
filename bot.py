@@ -1,5 +1,6 @@
 import os
 import ast
+import requests  # Import requests to use for the Discord webhook
 import time
 from dotenv import load_dotenv
 import praw
@@ -20,6 +21,9 @@ password = os.environ["PASSWORD"]
 # Whitelisted users
 whitelisted_users = ast.literal_eval(os.environ["WHITELIST"])
 whitelisted_users_lower = [name.lower() for name in whitelisted_users]
+
+# Discord Webhook URL
+discord_webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
 
 # Initialize PRAW with your credentials
 reddit = praw.Reddit(client_id=client_id,
@@ -46,6 +50,17 @@ This post contains replies from employees of Keen Games, you can see them here:
 
 """
 
+def send_to_discord(message):
+    """
+    Sends a message to the Discord webhook.
+    """
+    data = {"content": message}
+    response = requests.post(discord_webhook_url, json=data)
+    try:
+        response.raise_for_status()
+    except Exception as error:
+        print(f"[{time.asctime()}] ERROR: {error}\n")
+    
 def sticky_comment_on_whitelisted_user_post():
     for comment in stream:
         # Check if new comment is from a whitelisted username
@@ -71,6 +86,8 @@ def sticky_comment_on_whitelisted_user_post():
                 # Edit sticky comment with new post
                 existing_sticky.edit(sticky_comment_text_with_comment)
                 print(f"Edited a comment on post: {submission.title}")
+                # Send notification to Discord
+                send_to_discord(f"A stickied reply has been updated in r/{subreddit_name} by {comment.author.name}. [Link to comment]({comment.permalink})")
                 
             # Else, create new comment and sticky
             else:
@@ -87,6 +104,8 @@ def sticky_comment_on_whitelisted_user_post():
                 # Sticky and distinguish the comment
                 bot_sticky_comment.mod.distinguish(how='yes', sticky=True)
                 print(f"Stickied a comment on post: {submission.title}\nPost id: {submission.id}\nComment id: {bot_sticky_comment.id}")
+                # Send notification to Discord
+                send_to_discord(f"A stickied reply has been posted in r/{subreddit_name} by {comment.author.name}. [Link to comment]({comment.permalink})")
 
 while True:
     try:
