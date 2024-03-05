@@ -1,6 +1,7 @@
 import os
 import ast
 import requests  # Import requests to use for the Discord webhook
+import time
 from dotenv import load_dotenv
 import praw
 from sqlitedict import SqliteDict
@@ -37,6 +38,11 @@ bot_user = reddit.user.me()
 
 # Subreddit to monitor
 subreddit_name = os.environ["SUBREDDIT"]
+subreddit = reddit.subreddit(subreddit_name)
+stream = subreddit.stream.comments(skip_existing=True)
+
+print(f"Bot connected and listening in r/{subreddit_name}")
+print(f"Whitelisted users: {whitelisted_users_lower}")
 
 # The text for the sticky comment
 sticky_comment_text = """
@@ -56,10 +62,7 @@ def send_to_discord(message):
         print(f"[{time.asctime()}] ERROR: {error}\n")
     
 def sticky_comment_on_whitelisted_user_post():
-    print(f"Bot started and listening in r/{subreddit_name}")
-    print(f"Whitelisted users: {whitelisted_users_lower}")
-    subreddit = reddit.subreddit(subreddit_name)
-    for comment in subreddit.stream.comments(skip_existing=True):
+    for comment in stream:
         # Check if new comment is from a whitelisted username
         if comment.author and (comment.author.name.lower() in whitelisted_users_lower):
             print(f"Found a post by whitelisted user: {comment.author.name}")
@@ -104,5 +107,13 @@ def sticky_comment_on_whitelisted_user_post():
                 # Send notification to Discord
                 send_to_discord(f"A stickied reply has been posted in r/{subreddit_name} by {comment.author.name}. [Link to comment]({comment.permalink})")
 
-# Run the bot
-sticky_comment_on_whitelisted_user_post()
+while True:
+    try:
+        # Run the bot
+        stream = subreddit.stream.comments(skip_existing=True)
+        sticky_comment_on_whitelisted_user_post()
+        print(f"[{time.asctime()}] Retrying connection in 60 seconds...\n")
+    except Exception as error:
+        print(f"[{time.asctime()}] ERROR: {error}\n")
+        print(f"[{time.asctime()}] Retrying connection in 60 seconds...\n")
+    time.sleep(60)
