@@ -76,7 +76,7 @@ def sticky_comment_on_whitelisted_user_post():
                 comment_body_split = comment_body.split()
                 # Shorten comment to first 5 words if longer
                 if (len(comment_body_split) > 5):
-                    comment_body = "".join(comment_body_split[:5]) + " ..."
+                    comment_body = " ".join(comment_body_split[:5]) + " ..."
                 sticky_comment_text_with_comment = f"{sticky_comment_text}\n\n/u/{comment.author.name} posted a comment: [{comment_body}]({comment.permalink})"
                 # Post the comment
                 bot_sticky_comment = submission.reply(sticky_comment_text_with_comment)
