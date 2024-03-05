@@ -3,6 +3,7 @@ import ast
 from dotenv import load_dotenv
 import praw
 from sqlitedict import SqliteDict
+import requests  # Import requests library
 
 # Load environment variables from .env file
 # Will not overwrite existing environment variables
@@ -40,12 +41,25 @@ This post contains replies from employees of Keen Games, you can see them here:
 
 """
 
+# Discord webhook URL
+discord_webhook_url = os.environ["DISCORD_WEBHOOK_URL"]  # Make sure to add this to your .env file
+
+def send_to_discord(submission, comment):
+    """Send a notification to Discord via webhook."""
+    message = f"A stickied reply has been posted in Reddit by {bot_user}.\n"
+    message += f"[Link to stickied comment](https://www.reddit.com{comment.permalink})"
+    data = {"content": message}
+    response = requests.post(discord_webhook_url, json=data)
+    if response.status_code == 204:
+        print("Notification sent to Discord successfully.")
+    else:
+        print("Failed to send notification to Discord.")
+
 def sticky_comment_on_whitelisted_user_post():
     print(f"Bot started and listening in r/{subreddit_name}")
     print(f"Whitelisted users: {whitelisted_users_lower}")
     subreddit = reddit.subreddit(subreddit_name)
     for comment in subreddit.stream.comments(skip_existing=True):
-        # Check if new comment is from a whitelisted username
         if comment.author and (comment.author.name.lower() in whitelisted_users_lower):
             print(f"Found a post by whitelisted user: {comment.author.name}")
             submission = comment.submission
@@ -58,32 +72,25 @@ def sticky_comment_on_whitelisted_user_post():
             
             if existing_sticky:
                 sticky_body = existing_sticky.body
-                # Append comment to template
-                comment_body:str = comment.body
+                comment_body = comment.body
                 comment_body_split = comment_body.split()
-                # Shorten comment to first 5 words if longer
                 if (len(comment_body_split) > 5):
                     comment_body = " ".join(comment_body_split[:5]) + " ..."
                 sticky_comment_text_with_comment = f"{sticky_body}\n\n/u/{comment.author.name} posted a comment: [{comment_body}]({comment.permalink})"
-                # Edit sticky comment with new post
                 existing_sticky.edit(sticky_comment_text_with_comment)
                 print(f"Edited a comment on post: {submission.title}")
-                
-            # Else, create new comment and sticky
+                send_to_discord(submission, existing_sticky)  # Send notification to Discord
             else:
-                # Append comment to template
-                comment_body:str = comment.body
+                comment_body = comment.body
                 comment_body_split = comment_body.split()
-                # Shorten comment to first 5 words if longer
                 if (len(comment_body_split) > 5):
                     comment_body = " ".join(comment_body_split[:5]) + " ..."
                 sticky_comment_text_with_comment = f"{sticky_comment_text}\n\n/u/{comment.author.name} posted a comment: [{comment_body}]({comment.permalink})"
-                # Post the comment
                 bot_sticky_comment = submission.reply(sticky_comment_text_with_comment)
                 db[submission.id] = bot_sticky_comment.id
-                # Sticky and distinguish the comment
                 bot_sticky_comment.mod.distinguish(how='yes', sticky=True)
                 print(f"Stickied a comment on post: {submission.title}\nPost id: {submission.id}\nComment id: {bot_sticky_comment.id}")
+                send_to_discord(submission, bot_sticky_comment)  # Send notification to Discord
 
 # Run the bot
 sticky_comment_on_whitelisted_user_post()
