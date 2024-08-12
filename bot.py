@@ -9,7 +9,7 @@ from sqlitedict import SqliteDict
 # Load environment variables from .env file
 # Will not overwrite existing environment variables
 load_dotenv()
-db = SqliteDict("/data/reddit.sqlite", autocommit=True)
+db = SqliteDict("data/reddit.sqlite", autocommit=True)
 
 # Reddit API credentials
 client_id = os.environ["CLIENT_ID"]
