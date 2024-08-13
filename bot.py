@@ -46,7 +46,7 @@ subreddit_name = os.environ["SUBREDDIT"]
 subreddit = reddit.subreddit(subreddit_name)
 stream = subreddit.stream.comments(skip_existing=True)
 
-print(f"Bot connected and listening in r/{subreddit_name}")
+print(f"Bot {bot_user} connected and listening in r/{subreddit_name}")
 print(f"Whitelisted users: {whitelisted_users_lower}")
 
 # The text for the sticky comment
