@@ -122,7 +122,7 @@
         {
             "name": "Bots Reddit username",
             "description": "",
-            "env_variable": "BOTS_REDDIT_USERNAME",
+            "env_variable": "USERNAME",
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
@@ -133,7 +133,7 @@
         {
             "name": "Bots Reddit password",
             "description": "",
-            "env_variable": "BOTS_REDDIT_PASSWORD",
+            "env_variable": "PASSWORD",
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
