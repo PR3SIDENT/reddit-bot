@@ -1,5 +1,5 @@
 # What does this reddit bot do?
-This simple reddit bot watches a defined subreddit, and users within that subreddit to automatically sticky and aggregate official replies as show in the image below. This can best be described as a "DevTracker" or "Blue Post" tracker for large threads to see official statments, or interventions.
+This simple reddit bot watches a defined subreddit, and users within that subreddit to automatically sticky and aggregate official replies as show in the image below. This can best be described as a "DevTracker" or "Blue Post" tracker for large threads to see official statments, or interventions. This can be used by anyone with the proper Reddit API credentials and experience deploying a docker container.
   
 Here is an example of what the bot does for the attached subreddit...
 ![image](https://github.com/user-attachments/assets/dbdd562e-3066-44ac-a1a8-54c9f01ac3d1)
